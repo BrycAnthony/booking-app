@@ -50,3 +50,4 @@ def require_role(required_role: UserRole):
 
 
 require_provider = require_role(UserRole.PROVIDER)
+require_client = require_role(UserRole.CLIENT)

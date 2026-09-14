@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.dependencies import require_provider
-from app.models import AvailabilitySlot, User
+from app.dependencies import get_current_user, require_provider
+from app.models import AvailabilitySlot, Booking, User
 from app.schemas.slot import SlotCreate, SlotRead
 
 router = APIRouter(tags=["slots"])
@@ -24,3 +24,16 @@ def create_slot(
     db.commit()
     db.refresh(slot)
     return slot
+
+
+@router.get("/slots", response_model=list[SlotRead])
+def list_open_slots(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[AvailabilitySlot]:
+    return (
+        db.query(AvailabilitySlot)
+        .outerjoin(Booking, Booking.slot_id == AvailabilitySlot.id)
+        .filter(Booking.id.is_(None))
+        .all()
+    )
