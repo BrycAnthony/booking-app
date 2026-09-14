@@ -1,17 +1,8 @@
 import pytest
 from sqlalchemy.exc import IntegrityError
 
-from app.database import Base, SessionLocal, engine
+from app.database import SessionLocal
 from app.models import AvailabilitySlot, Booking, User, UserRole
-
-
-@pytest.fixture(autouse=True)
-def _clean_tables():
-    Base.metadata.create_all(bind=engine)
-    yield
-    with engine.begin() as conn:
-        for table in reversed(Base.metadata.sorted_tables):
-            conn.execute(table.delete())
 
 
 def test_booking_slot_id_is_unique_at_the_database_level():
