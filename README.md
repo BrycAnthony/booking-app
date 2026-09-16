@@ -1,5 +1,11 @@
 # booking-app
 
+## Live Demo
+
+[`https://booking-app-s728.onrender.com/docs`](https://booking-app-s728.onrender.com/docs)
+
+Deployed on Render's free tier with a Neon Postgres database. The free tier spins the instance down after a period of inactivity, so the first request after a while may take up to a minute to respond while it spins back up — subsequent requests are fast.
+
 An appointment booking API: providers publish availability slots, clients book them. Built as a portfolio project.
 
 ## Tech stack
