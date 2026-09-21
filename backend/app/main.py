@@ -7,7 +7,7 @@ from fastapi.responses import RedirectResponse
 from app import models  # noqa: F401  (registers models on Base.metadata)
 from app.config import settings
 from app.database import Base, engine
-from app.routers import auth, bookings, health, slots
+from app.routers import auth, bookings, health, slots, users
 
 
 @asynccontextmanager
@@ -37,3 +37,4 @@ app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(slots.router)
 app.include_router(bookings.router)
+app.include_router(users.router)
