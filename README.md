@@ -2,19 +2,20 @@
 
 ## Live Demo
 
-[`https://booking-app-s728.onrender.com/docs`](https://booking-app-s728.onrender.com/docs)
+- **App:** [`https://booking-app-pi-sand.vercel.app`](https://booking-app-pi-sand.vercel.app)
+- **API docs:** [`https://booking-app-s728.onrender.com/docs`](https://booking-app-s728.onrender.com/docs)
 
-Deployed on Render's free tier with a Neon Postgres database. The free tier spins the instance down after a period of inactivity, so the first request after a while may take up to a minute to respond while it spins back up — subsequent requests are fast.
+The API runs on Render's free tier, which spins the instance down after a period of inactivity. The first request after a while may take up to a minute to respond while it spins back up — if the app seems stuck on first load, that's the API waking up. Subsequent requests are fast.
 
-An appointment booking API: providers publish availability slots, clients book them. Built as a portfolio project.
+An appointment booking app (FastAPI + React): providers publish availability slots, clients book them. Built as a portfolio project.
 
 ## Tech stack
 
 - **Backend:** FastAPI (Python), PostgreSQL, SQLAlchemy
 - **Auth:** JWT access tokens, passwords hashed with bcrypt
 - **Local infra:** Docker Compose (Postgres)
-- **Frontend:** React + Vite, shadcn/ui (planned — not yet implemented; only the backend exists today)
-- **Deploy:** Render (API), Vercel (frontend)
+- **Frontend:** React + Vite
+- **Deploy:** Vercel (frontend), Render (API), Neon (Postgres)
 
 ## Running locally
 
@@ -51,9 +52,12 @@ Tests run against a real Postgres database (not mocks), with tables created and 
 | GET    | `/health`         | Service + database health check                | Public             |
 | POST   | `/auth/signup`    | Create a provider or client account            | Public             |
 | POST   | `/auth/login`     | Exchange email + password for a JWT            | Public             |
+| GET    | `/users/me`       | Current user's profile                          | Any authenticated user |
 | POST   | `/slots`          | Publish an availability slot                    | Provider only      |
 | GET    | `/slots`          | List open (unbooked) slots                      | Any authenticated user |
+| GET    | `/slots/mine`     | List your own slots, including booked ones      | Provider only      |
 | POST   | `/bookings`       | Book an open slot                               | Client only        |
+| GET    | `/bookings/mine`  | List your bookings with slot times              | Client only        |
 | DELETE | `/bookings/{id}`  | Cancel your own booking                         | Client only (owner) |
 
 ## Environment variables
@@ -69,16 +73,27 @@ Tests run against a real Postgres database (not mocks), with tables created and 
 
 Locally these come from the root `.env` file (`cp .env.example .env`). In CI and on Render, there is no `.env` file — these are set directly as real environment variables.
 
-## Deploying (Render)
+## Deployment
 
-The API deploys from `backend/Dockerfile`:
+Three free-tier services, each deploying from this repo:
+
+- **Frontend — Vercel:** serves the built React app. The browser calls the API directly.
+- **API — Render:** runs the FastAPI app in Docker (`backend/Dockerfile`).
+- **Database — Neon:** hosted Postgres that the API connects to via `DATABASE_URL`.
+
+### API (Render)
 
 1. Create a new Render Web Service from this repo, with **Root Directory** set to `backend`.
 2. Render detects the Dockerfile automatically (Environment: Docker).
-3. Set the required environment variables above in the Render dashboard — `DATABASE_URL` (pointing at your Render Postgres instance) and `JWT_SECRET_KEY` at minimum, plus `ALLOWED_ORIGINS` once the frontend has a real deployed URL.
+3. Set the environment variables above in the Render dashboard: `DATABASE_URL` (your Neon connection string, using the `postgresql+psycopg://` scheme), `JWT_SECRET_KEY`, and `ALLOWED_ORIGINS` (the Vercel URL — without it the browser blocks the frontend's requests with CORS errors).
 4. Health check path: `/health`.
 
 Render injects `PORT` itself; the Dockerfile's `CMD` binds to `0.0.0.0:$PORT` automatically, so no extra configuration is needed for that.
+
+### Frontend (Vercel)
+
+1. Import this repo into Vercel with **Root Directory** set to `frontend` (framework preset: Vite).
+2. Set `VITE_API_URL` to the Render API URL. Vite bakes this into the bundle at build time (see `frontend/.env.example`), so changing it requires a redeploy.
 
 ## Preventing double-booking
 
