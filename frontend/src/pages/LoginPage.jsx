@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { token, restoring, login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const successMessage = location.state?.message;
@@ -25,6 +25,19 @@ export default function LoginPage() {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  // The app's root URL redirects here, so a returning user with a valid saved
+  // token should skip the form. (Hooks above must run before these returns.)
+  if (restoring) {
+    return (
+      <div className="page">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+  if (token) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return (
