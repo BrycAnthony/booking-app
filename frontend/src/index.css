@@ -73,3 +73,24 @@ button:disabled {
   margin-top: 1rem;
   font-size: 0.9rem;
 }
+
+.page-wide {
+  max-width: 480px;
+}
+
+.page h2 {
+  margin-top: 2rem;
+  font-size: 1.1rem;
+}
+
+.slot-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.slot-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+  font-size: 0.95rem;
+}

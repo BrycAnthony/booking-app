@@ -26,6 +26,23 @@ def create_slot(
     return slot
 
 
+# Keep this declared before any future `/slots/{slot_id}` route: FastAPI matches routes
+# in declaration order, so a path-parameter route listed first would capture "mine".
+@router.get("/slots/mine", response_model=list[SlotRead])
+def list_my_slots(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_provider),
+) -> list[AvailabilitySlot]:
+    # Unlike GET /slots, this includes booked slots — a provider needs to see their
+    # whole schedule, not just what's still open.
+    return (
+        db.query(AvailabilitySlot)
+        .filter(AvailabilitySlot.provider_id == current_user.id)
+        .order_by(AvailabilitySlot.start_time)
+        .all()
+    )
+
+
 @router.get("/slots", response_model=list[SlotRead])
 def list_open_slots(
     db: Session = Depends(get_db),

@@ -50,3 +50,20 @@ export function fetchMe(token) {
     headers: { Authorization: `Bearer ${token}` },
   }).then(handleResponse);
 }
+
+export function fetchMySlots(token) {
+  return fetch(`${API_URL}/slots/mine`, {
+    headers: { Authorization: `Bearer ${token}` },
+  }).then(handleResponse);
+}
+
+export function createSlot(token, { start_time, end_time }) {
+  return fetch(`${API_URL}/slots`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ start_time, end_time }),
+  }).then(handleResponse);
+}

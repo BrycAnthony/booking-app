@@ -4,6 +4,7 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import SignupPage from "./pages/SignupPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
+import SlotsPage from "./pages/SlotsPage.jsx";
 
 export default function App() {
   return (
@@ -16,6 +17,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/slots"
+          element={
+            <ProtectedRoute role="provider">
+              <SlotsPage />
             </ProtectedRoute>
           }
         />

@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 
 export default function DashboardPage() {
@@ -15,6 +15,11 @@ export default function DashboardPage() {
       <h1>Dashboard</h1>
       <p>Logged in as {user.email}</p>
       <p>Role: {user.role}</p>
+      {user.role === "provider" && (
+        <p>
+          <Link to="/slots">Manage availability</Link>
+        </p>
+      )}
       <button type="button" onClick={handleLogout}>
         Log out
       </button>
