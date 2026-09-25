@@ -14,6 +14,11 @@ function formatApiError(detail) {
 }
 
 async function handleResponse(response) {
+  // 204 No Content (e.g. DELETE /bookings/{id}) has an empty body, and calling
+  // .json() on it would throw.
+  if (response.status === 204) {
+    return null;
+  }
   if (response.ok) {
     return response.json();
   }
@@ -75,6 +80,19 @@ export function createBooking(token, slotId) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ slot_id: slotId }),
+  }).then(handleResponse);
+}
+
+export function fetchMyBookings(token) {
+  return fetch(`${API_URL}/bookings/mine`, {
+    headers: { Authorization: `Bearer ${token}` },
+  }).then(handleResponse);
+}
+
+export function cancelBooking(token, bookingId) {
+  return fetch(`${API_URL}/bookings/${bookingId}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
   }).then(handleResponse);
 }
 

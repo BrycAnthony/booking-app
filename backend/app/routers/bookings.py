@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, contains_eager
 
 from app.database import get_db
 from app.dependencies import require_client
 from app.models import AvailabilitySlot, Booking, User
-from app.schemas.booking import BookingCreate, BookingRead
+from app.schemas.booking import BookingCreate, BookingRead, BookingWithSlot
 
 router = APIRouter(tags=["bookings"])
 
@@ -29,6 +29,25 @@ def create_booking(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Slot is already booked")
     db.refresh(booking)
     return booking
+
+
+# Declared before any `/bookings/{booking_id}` GET route so "mine" isn't captured as an id.
+@router.get("/bookings/mine", response_model=list[BookingWithSlot])
+def list_my_bookings(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_client),
+) -> list[Booking]:
+    # join() lets us sort by the slot's start time; contains_eager() fills booking.slot
+    # from that same join, so serializing each booking's slot doesn't fire one extra
+    # query per booking (the N+1 problem).
+    return (
+        db.query(Booking)
+        .join(Booking.slot)
+        .options(contains_eager(Booking.slot))
+        .filter(Booking.client_id == current_user.id)
+        .order_by(AvailabilitySlot.start_time)
+        .all()
+    )
 
 
 @router.delete("/bookings/{booking_id}", status_code=status.HTTP_204_NO_CONTENT)

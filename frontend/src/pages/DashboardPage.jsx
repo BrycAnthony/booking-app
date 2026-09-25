@@ -23,6 +23,8 @@ export default function DashboardPage() {
       {user.role === "client" && (
         <p>
           <Link to="/book">Book an appointment</Link>
+          {" · "}
+          <Link to="/my-bookings">My bookings</Link>
         </p>
       )}
       <button type="button" onClick={handleLogout}>

@@ -6,6 +6,7 @@ import LoginPage from "./pages/LoginPage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
 import SlotsPage from "./pages/SlotsPage.jsx";
 import BookPage from "./pages/BookPage.jsx";
+import MyBookingsPage from "./pages/MyBookingsPage.jsx";
 
 export default function App() {
   return (
@@ -34,6 +35,14 @@ export default function App() {
           element={
             <ProtectedRoute role="client">
               <BookPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/my-bookings"
+          element={
+            <ProtectedRoute role="client">
+              <MyBookingsPage />
             </ProtectedRoute>
           }
         />

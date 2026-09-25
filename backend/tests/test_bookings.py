@@ -75,3 +75,41 @@ def test_booked_slot_does_not_appear_in_open_slots_list(client, auth_headers):
 
     assert response.status_code == 200
     assert slot_id not in [slot["id"] for slot in response.json()]
+
+
+def test_list_my_bookings_returns_own_bookings_with_slot_times_sorted(client, auth_headers):
+    provider = auth_headers(UserRole.PROVIDER)
+    later = client.post(
+        "/slots", json={"start_time": "2026-03-02T09:00:00", "end_time": "2026-03-02T10:00:00"}, headers=provider
+    ).json()["id"]
+    earlier = client.post(
+        "/slots", json={"start_time": "2026-03-01T09:00:00", "end_time": "2026-03-01T10:00:00"}, headers=provider
+    ).json()["id"]
+    someone_elses = client.post(
+        "/slots", json={"start_time": "2026-03-03T09:00:00", "end_time": "2026-03-03T10:00:00"}, headers=provider
+    ).json()["id"]
+
+    me = auth_headers(UserRole.CLIENT, email="me@example.com")
+    other = auth_headers(UserRole.CLIENT, email="other@example.com")
+    client.post("/bookings", json={"slot_id": later}, headers=me)
+    client.post("/bookings", json={"slot_id": earlier}, headers=me)
+    client.post("/bookings", json={"slot_id": someone_elses}, headers=other)
+
+    response = client.get("/bookings/mine", headers=me)
+
+    assert response.status_code == 200
+    body = response.json()
+    assert [b["slot"]["id"] for b in body] == [earlier, later]
+    assert body[0]["slot"]["start_time"] == "2026-03-01T09:00:00"
+
+
+def test_list_my_bookings_rejects_provider_role(client, auth_headers):
+    response = client.get("/bookings/mine", headers=auth_headers(UserRole.PROVIDER))
+
+    assert response.status_code == 403
+
+
+def test_list_my_bookings_rejects_missing_token(client):
+    response = client.get("/bookings/mine")
+
+    assert response.status_code == 401

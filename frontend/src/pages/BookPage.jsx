@@ -97,6 +97,8 @@ export default function BookPage() {
       )}
 
       <p className="field-hint">
+        <Link to="/my-bookings">My bookings</Link>
+        {" · "}
         <Link to="/dashboard">Back to dashboard</Link>
       </p>
     </div>
