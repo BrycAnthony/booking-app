@@ -23,7 +23,11 @@ async function handleResponse(response) {
   } catch {
     detail = undefined;
   }
-  throw new Error(formatApiError(detail));
+  // Attach the HTTP status so callers can branch on it (e.g. 409 for a
+  // double-booking) instead of string-matching the backend's message.
+  const error = new Error(formatApiError(detail));
+  error.status = response.status;
+  throw error;
 }
 
 export function signup({ email, password, role }) {
@@ -54,6 +58,23 @@ export function fetchMe(token) {
 export function fetchMySlots(token) {
   return fetch(`${API_URL}/slots/mine`, {
     headers: { Authorization: `Bearer ${token}` },
+  }).then(handleResponse);
+}
+
+export function fetchOpenSlots(token) {
+  return fetch(`${API_URL}/slots`, {
+    headers: { Authorization: `Bearer ${token}` },
+  }).then(handleResponse);
+}
+
+export function createBooking(token, slotId) {
+  return fetch(`${API_URL}/bookings`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ slot_id: slotId }),
   }).then(handleResponse);
 }
 

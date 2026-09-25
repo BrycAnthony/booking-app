@@ -5,6 +5,7 @@ import SignupPage from "./pages/SignupPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
 import SlotsPage from "./pages/SlotsPage.jsx";
+import BookPage from "./pages/BookPage.jsx";
 
 export default function App() {
   return (
@@ -25,6 +26,14 @@ export default function App() {
           element={
             <ProtectedRoute role="provider">
               <SlotsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/book"
+          element={
+            <ProtectedRoute role="client">
+              <BookPage />
             </ProtectedRoute>
           }
         />

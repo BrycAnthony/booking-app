@@ -50,6 +50,17 @@ def test_list_my_slots_returns_only_own_slots_including_booked(client, auth_head
     assert [slot["id"] for slot in response.json()] == [earlier_id, later_id]
 
 
+def test_list_open_slots_is_sorted_by_start_time(client, auth_headers):
+    headers = auth_headers(UserRole.PROVIDER)
+    later_id = _create_slot(client, headers, "2026-03-02T09:00:00", "2026-03-02T10:00:00")
+    earlier_id = _create_slot(client, headers, "2026-03-01T09:00:00", "2026-03-01T10:00:00")
+
+    response = client.get("/slots", headers=auth_headers(UserRole.CLIENT))
+
+    assert response.status_code == 200
+    assert [slot["id"] for slot in response.json()] == [earlier_id, later_id]
+
+
 def test_list_my_slots_rejects_client_role(client, auth_headers):
     response = client.get("/slots/mine", headers=auth_headers(UserRole.CLIENT))
 

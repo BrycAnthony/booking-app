@@ -20,6 +20,11 @@ export default function DashboardPage() {
           <Link to="/slots">Manage availability</Link>
         </p>
       )}
+      {user.role === "client" && (
+        <p>
+          <Link to="/book">Book an appointment</Link>
+        </p>
+      )}
       <button type="button" onClick={handleLogout}>
         Log out
       </button>

@@ -52,5 +52,6 @@ def list_open_slots(
         db.query(AvailabilitySlot)
         .outerjoin(Booking, Booking.slot_id == AvailabilitySlot.id)
         .filter(Booking.id.is_(None))
+        .order_by(AvailabilitySlot.start_time)
         .all()
     )

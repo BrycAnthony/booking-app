@@ -94,3 +94,16 @@ button:disabled {
   border-bottom: 1px solid #eee;
   font-size: 0.95rem;
 }
+
+.slot-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.button-small {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
